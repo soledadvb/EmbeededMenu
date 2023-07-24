@@ -1,4 +1,14 @@
 #include "Disp.h"
+
+void set_disp_para(menu_ctx_t *ctx, disp_para_t *T);
+void disp_ui(menu_ctx_t *ctx, disp_para_t *T);
+void key_in_menu(menu_ctx_t *ctx, disp_para_t *T);
+
+menu_ctx_t menu_stack[MENU_STACK_DEEPTH];
+u8 stack_index = 0;
+s32 num = 0;
+u8 edit_flg = 0;
+
 // 根据小数点数插入小数点
 static s16 Data_dir(u8 *dir_buff, int int_size, u8 dot_size, s32 D, u8 flg)
 {
@@ -115,16 +125,6 @@ u8 check_pwd(u8 pwd[])
         }
     }
 }
-void set_disp_para(menu_ctx_t *ctx, disp_para_t *T);
-void disp_ui(menu_ctx_t *ctx, disp_para_t *T);
-void key_in_menu(menu_ctx_t *ctx, disp_para_t *T);
-
-menu_ctx_t menu_stack[MENU_STACK_DEEPTH];
-u8 stack_index = 0;
-s32 num = 0;
-u8 edit_flg = 0;
-
-menu_ui_type_e menu_ui_type = Main_Menu_UI; // 界面初始化为主菜单界面
 
 u8 Get_Items_Count(str_one_line *pMenu)
 {
@@ -855,6 +855,7 @@ void key_in_event_menu(s8 *page, u8 max_page)
  **/
 void TASK_FUNC_DISP(void *argument)
 {
+    // 初始化菜单
     menu_stack[0].pMenu = menu_main;
     menu_stack[0].ui_type = Main_Menu_UI;
     while (1)
