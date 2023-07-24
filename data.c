@@ -1,5 +1,12 @@
 #include "data.h"
 
+UI_Info_t UI_Info[UI_Type_Num] = /* row; col; 每一项高度height; x0, y0;*/
+    {
+        {4, 2, 16, 5, 1}, // Main_Menu_UI  12x14
+        {6, 1, 10, 5, 3}, // Para_Menu_UI_5x8
+        {4, 1, 16, 5, 1}, // Para_Menu_UI_5x82x14
+};
+
 /**
  *  NOTE:!!
  *  1.  最大显示位数根据max的位数决定，若不需要显示小数点，min 和 max 需要设为 0;
