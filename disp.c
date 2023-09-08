@@ -10,7 +10,7 @@ s32 num = 0;
 u8 edit_flg = 0;
 
 // 根据小数点数插入小数点
-static s16 Data_dir(u8 *dir_buff, int int_size, u8 dot_size, s32 D, u8 flg)
+static s16 InsertDot(u8 *dir_buff, int int_size, u8 dot_size, s32 D, u8 flg)
 {
     s16 i;
     if (D >= 0) // 数值为正数
@@ -51,87 +51,11 @@ static s16 Data_dir(u8 *dir_buff, int int_size, u8 dot_size, s32 D, u8 flg)
     return i;
 }
 
-u8 check_pwd(u8 pwd[])
+u8 GetItemsNumbers(str_one_line *pMenu)
 {
-    u8 key_buf[4] = {'0', '0', '0', '0'};
-    u8 error = 0, i, ii;
-    int pos = 0;
-    while (1)
-    {
-        if (error)
-        {
-            i = sprintf((char *)&DGUS_Sb_P[DGUS_FRAME_BUF], "%s", "密码错误");
-            error--;
-            PackFrame_to_send1(i, (35 << 8) | 12, 0xffff, 0x0a, 0x00);
-        }
-        else
-        {
-            i = sprintf((char *)&DGUS_Sb_P[DGUS_FRAME_BUF], "%s", "请输入密码");
-            PackFrame_to_send1(i, (28 << 8) | 12, 0xffff, 0x0a, 0x00);
-        }
-        memcpy(&DGUS_Sb_P[DGUS_FRAME_BUF], &key_buf[0], 4);
-        PackFrame_to_send1(4, (49 << 8) | 30, 0xffff, 0x0a, 0x0);
-        PackFrame_to_send1(0, ((49 + 6 * pos - 1) << 8) | 32, ((49 + 6 * (pos + 1) - 1) << 8) | 41, 0x04, 0xff);
-        PackFrame_to_send1(0, 0xffff, 0xffff, 0x01, 0xff);
-        Write_LCD_Data(); // 包含OSTimeDly(10)
-        Disp_OSTimeDly(ms200);
-        get_key(5);
-        switch (mkvalue)
-        {
-        case KEY_UP:
-            key_buf[pos]++;
-            if (key_buf[pos] > 9 + '0')
-                key_buf[pos] = '0';
-            break;
-        case KEY_DOWN:
-            key_buf[pos]--;
-            if (key_buf[pos] < '0')
-                key_buf[pos] = '9';
-            break;
-        case KEY_LEFT:
-            pos--;
-            if (pos < 0)
-                pos = 3;
-            break;
-        case KEY_RIGHT:
-            pos++;
-            if (pos > 3)
-                pos = 0;
-            break;
-        case KEY_SET:
-            for (i = 0, ii = 0; i < 4; i++)
-            {
-                if (key_buf[i] == pwd[i])
-                    ii++;
-            }
-            if (ii == 4)
-                return 0;
-            else
-            {
-                error = 3;
-            }
-            break;
-        case KEY_QUIT:
-            return 1;
-        case KEY_ADD:
-            break;
-        case KEY_CUT:
-            break;
-        case KEY_RESET:
-            memset(key_buf, '0', 4);
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-u8 Get_Items_Count(str_one_line *pMenu)
-{
-    u8 cnt;
-    for (cnt = 0; pMenu[cnt].end_flg != 1; cnt++) // 计算菜单项总数
+    for (u8 num = 0; pMenu[num].end_flg != 1; num++) // 计算菜单项总数
         ;
-    return cnt + 1;
+    return num + 1;
 }
 
 u8 Get_Page_Count(str_one_line *pMenu, u8 per_page_items)
@@ -718,134 +642,6 @@ void Para_Menu_12x14(menu_ctx_t *ctx)
         key_in_menu(ctx, &T);
     else
         key_in_para_edit(ctx, &T);
-}
-
-/**********************************************************************/
-
-static void disp_ui_time(menu_ctx_t *ctx, disp_para_t *T)
-{
-    u16 x, y;
-    // 显示
-    GET_DGUS_Sb_P();
-    // 清屏
-    PackFrame_to_send1(0, 0x7F, 0xffff, 0x02, 0xff);
-
-    for (u8 ii = ctx->start_item; ii < ctx->end_item; ii++)
-    {
-        char buff[40];
-        u8 len = 0;
-        u8 cnt = 0;
-        s32 tmp = ctx->pMenu[ii].max;
-
-        // 计算max是cnt位数
-        while (tmp)
-        {
-            tmp /= 10;
-            cnt++;
-        }
-        if (ctx->currentIndex == ii && ctx->pMenu[ctx->currentIndex].Edit_Flg == EDIT)
-        {
-            T->crtIndex_cnt = cnt;
-            T->i = T->crtIndex_cnt - ctx->pMenu[ctx->currentIndex].D_dir_f;
-        }
-        // 写入标题
-        memcpy(&DGUS_Sb_P[DGUS_FRAME_BUF], ctx->pMenu[ii].text, strlen(ctx->pMenu[ii].text));
-        len += strlen(ctx->pMenu[ii].text);
-        memset(buff, 0x00, sizeof(buff));
-        // 控制字
-        if (ctx->pMenu[ii].D_dir_f == D_dir_STR)
-        {
-        }
-        // 数值 + 单位
-        else
-        {
-            if (edit_flg == 1 && ii == ctx->currentIndex)
-            {
-                Data_dir((u8 *)buff, cnt - ctx->pMenu[ii].D_dir_f, ctx->pMenu[ii].D_dir_f, num, 1);
-            }
-            else
-                Data_dir((u8 *)buff, cnt - ctx->pMenu[ii].D_dir_f, ctx->pMenu[ii].D_dir_f, *ctx->pMenu[ii].D, 1);
-            strcat(buff, *ctx->pMenu[ii].D_danwei);
-        }
-        memcpy(&DGUS_Sb_P[DGUS_FRAME_BUF + len], buff, strlen(buff));
-        len += strlen(buff);
-        x = UI_Info[TIME_MENU_UI].x0 + (ii - ctx->start_item) % T->col * 40;
-        y = UI_Info[TIME_MENU_UI].y0 + UI_Info[TIME_MENU_UI].height * ((ii - ctx->start_item) / T->col); // 16
-        PackFrame_to_send1(len, (x << 8) + y, 0xffff, 0x0a, 0x00);
-    }
-
-    // 反显当前菜单项
-    x = UI_Info[TIME_MENU_UI].x0 + ctx->currentIndex % T->col * 40;
-    y = UI_Info[TIME_MENU_UI].y0 + UI_Info[TIME_MENU_UI].height * (ctx->currentIndex / T->col); // 16
-    PackFrame_to_send1(0x00, ((x - 2) << 8) | y, ((x + 24) << 8) | (y + 14 - 1), 0x04, 0xff);   // 增大反显轮廓,左右x坐标各增加2px,上下y坐标各增加1px
-
-    if (edit_flg == 1)
-    {
-        static u8 rvt_flg = 1;
-        static u8 temp = 0, times = 1; // 闪烁快慢,times越大闪烁越慢
-
-        if (ctx->pMenu[ctx->currentIndex].D_dir_f == D_dir_STR) // 控制字
-        {
-        }
-        else // 数值
-        {
-            // 闪烁选中位
-            if (rvt_flg)
-            {
-                if (T->i == 0 && T->_pos == 0)
-                    T->_pos = 2;
-                PackFrame_to_send1(0x00, ((x + (6 * T->_pos)) << 8) | (y),
-                                   ((x + (6 * (T->_pos + 1)) - 2) << 8) | (y + UI_Info[TIME_MENU_UI].height - 1), 0x05, 0xff);
-                if (temp++ == times)
-                {
-                    rvt_flg = !rvt_flg;
-                    temp = 0;
-                }
-            }
-            else
-            {
-                if (temp++ == times)
-                {
-                    rvt_flg = !rvt_flg;
-                    temp = 0;
-                }
-            }
-        }
-    }
-
-    //  刷新屏幕
-    PackFrame_to_send1(0x00, 0xffff, 0xffff, 0x01, 0xff);
-    Write_LCD_Data();
-    Disp_OSTimeDly(ms200);
-}
-
-void key_in_event_menu(s8 *page, u8 max_page)
-{
-    get_key(5);
-    switch (mkvalue)
-    {
-    case KEY_UP:
-        if (*page == 0)
-        {
-            break;
-        }
-        (*page)--;
-        break;
-    case KEY_DOWN:
-        if (*page == max_page)
-            break;
-        (*page)++;
-        break;
-    case KEY_QUIT:
-        if (stack_index > 0)
-        {
-            stack_index--;
-            *page = 0;
-        }
-        return;
-    default:
-        break;
-    }
 }
 
 /**

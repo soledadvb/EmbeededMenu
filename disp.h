@@ -90,10 +90,11 @@ typedef struct
     u8 page_cnt;
     u8 items_cnt;
     u8 crtIndex_cnt; // 修改数值计数
-    u8 i;
-    s8 pos;
-    s8 _pos;
 } disp_para_t;
+
+u8 i;
+s8 pos;
+s8 _pos;
 
 extern menu_ctx_t menu_stack[MENU_STACK_DEEPTH];
 extern u8 stack_index;

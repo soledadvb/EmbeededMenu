@@ -83,67 +83,10 @@ u8 ControlMenuFunc(u16 index)
     switch (index)
     {
     case 0:
-        // if (DispConfirmPrompt() == 0)
-        // {
-        //     retval = KC_Set(0, 200);
-        //     DispConfirmResultPrompt(&retval);
-        // }
+        // add function code here
         break;
     case 1:
-        // if (DispConfirmPrompt() == 0)
-        // {
-        //     retval = KC_Set(1, 200);
-        //     DispConfirmResultPrompt(&retval);
-        // }
-        break;
-    case 2:
-        // if (DispConfirmPrompt() == 0)
-        // {
-        //     retval = KC_Set(2, 200);
-        //     DispConfirmResultPrompt(&retval);
-        // }
-        break;
-    case 3:
-        // if (DispConfirmPrompt() == 0)
-        // {
-        //     retval = KC_Set(3, 200);
-        //     DispConfirmResultPrompt(&retval);
-        // }
-        break;
-    case 4:
-        // if (DispConfirmPrompt() == 0)
-        // {
-        //     retval = KC_Set(4, 200);
-        //     DispConfirmResultPrompt(&retval);
-        // }
-        break;
-    case 5:
-        // if (DispConfirmPrompt() == 0)
-        // {
-        //     retval = KC_Set(5, 200);
-        //     DispConfirmResultPrompt(&retval);
-        // }
-        break;
-    case 6:
-        // if (DispConfirmPrompt() == 0)
-        // {
-        //     retval = KC_Set(6, 200);
-        //     DispConfirmResultPrompt(&retval);
-        // }
-        break;
-    case 7:
-        // if (DispConfirmPrompt() == 0)
-        // {
-        //     retval = KC_Set(7, 200);
-        //     DispConfirmResultPrompt(&retval);
-        // }
-        break;
-    case 8:
-        // if (DispConfirmPrompt() == 0)
-        // {
-        //     retval = KC_Set(8, 200);
-        //     DispConfirmResultPrompt(&retval);
-        // }
+        // add function code here
         break;
     default:
         break;
